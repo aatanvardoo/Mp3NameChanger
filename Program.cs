@@ -9,9 +9,13 @@ namespace Mp3NameChanger
     
     class Program
     {
+        
         enum EOptions { EOptions_Update, EOptions_Trim, EOptions_Last};
         static void Main(string[] args)
         {
+            Console.WriteLine(" ");
+            Console.WriteLine("================= Mp3 name changer v.1 by Adi =================");
+            Console.WriteLine(" ");
             EOptions options = EOptions.EOptions_Last;
             if (args.Length == 1)
             {
@@ -29,7 +33,7 @@ namespace Mp3NameChanger
                     default:
                         Console.WriteLine("Invalid param please use help 'h'");
                         options = EOptions.EOptions_Last;
-                        break;
+                        return;
                 }
             }
             else
@@ -38,18 +42,13 @@ namespace Mp3NameChanger
                 return;
             }
 
-            if (options == EOptions.EOptions_Last) // to be removed
-            {
-                return;
-            }
-
             ushort SongsCnt = 1; //number of the song
             string fileName;  //name of the file
             string filePath; // path to the file
             /* GEt current folder path */
             string path = Directory.GetCurrentDirectory();
-            Console.WriteLine("====================Mp3NameChanger by AdI v.1======================");
-            Console.WriteLine(" ");
+
+            
             /* Find all the files in path  with mp3 extension */
             string[] filePaths = Directory.GetFiles(@path, "*.mp3");
 
@@ -62,12 +61,19 @@ namespace Mp3NameChanger
                 /*Used when updating nemes with numbers */
                 if (options == EOptions.EOptions_Update)
                 {
+                    /* Check if file update needed */
                     if (IsFileNameUpdateNeeded(fileName))
                     {
+                        /* Updating file */
                         UpdateFileName(ref fileName, SongsCnt);
+                        Console.WriteLine("Updated ::: {0}", fileName);
                     }
                     else
                     {
+                     
+                        /* File doesnt have to be updated check next song.
+                         * In ordet to maintain right numbering a congs counter needs to be updated. */
+                        Console.WriteLine("Nothing to do ::: {0}", fileName);
                         SongsCnt++;
                         continue;
                     }
@@ -113,8 +119,7 @@ namespace Mp3NameChanger
             if (index != 0)
                 return false;
             else /* Function doesnt have special haracter so it needs to be updated */
-                return true;
-                
+                return true; 
         }
 
         /* Function addes prefix to file given as argument */
