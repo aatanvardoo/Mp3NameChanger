@@ -11,6 +11,7 @@ namespace Mp3NameChanger
         static void Main(string[] args)
         {
             bool trimName = false;
+            bool updateName = false;
             if (args.Length == 1)
             {
                 switch (args[0])
@@ -18,8 +19,11 @@ namespace Mp3NameChanger
                     case "r":
                         trimName = true;
                         break;
+                    case "u":
+                        updateName = true;
+                        break;
                     default:
-                        Console.WriteLine("Invalid param");
+                        Console.WriteLine("Invalid param please use help 'h'");
                         break;
                 }
             }
@@ -42,13 +46,33 @@ namespace Mp3NameChanger
                 fileName = Path.GetFileName(s);
                 filePath = Path.GetDirectoryName(s);
                 /*Used when updating nemes with numbers */
-                if (trimName == false)
+                if (trimName == false && updateName == false)
                 {
                     /* Addes number to file and updates file name */
                     songsCntStr = string.Format("{0:00}", SongsCnt);
                     fileName = songsCntStr + " $$" + fileName;
                 }
-                    /* When removing existing indexes */
+                else if (updateName)
+                {
+                    int magicNbr = 0; //number of characters to trim
+                    while (fileName.IndexOf("$$", magicNbr) != -1)
+                    {
+                        magicNbr++;
+                    }
+
+                    if (magicNbr != 0)
+                    {
+                        SongsCnt++;
+                        continue;
+                    }
+                    else
+                    {
+                        /* Addes number to file and updates file name */
+                        songsCntStr = string.Format("{0:00}", SongsCnt);
+                        fileName = songsCntStr + " $$" + fileName;
+                    }
+                }
+                /* When removing existing indexes */
                 else
                 {
                     int magicNbr = 0; //number of characters to trim
