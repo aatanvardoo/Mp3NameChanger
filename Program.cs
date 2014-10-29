@@ -6,33 +6,44 @@ using System.IO;
 
 namespace Mp3NameChanger
 {
+    
     class Program
     {
+        enum EOptions { EOptions_Update, EOptions_Trim, EOptions_Last};
         static void Main(string[] args)
         {
-            bool trimName = false;
-            bool updateName = false;
+            EOptions options = EOptions.EOptions_Last;
             if (args.Length == 1)
             {
                 switch (args[0])
                 {
                     case "r":
-                        trimName = true;
+                        options = EOptions.EOptions_Trim;
                         break;
                     case "u":
-                        updateName = true;
+                        options = EOptions.EOptions_Update;
                         break;
                     case "h":
                         DisplayHelp();
                         break;
                     default:
                         Console.WriteLine("Invalid param please use help 'h'");
+                        options = EOptions.EOptions_Last;
                         break;
                 }
             }
+            else
+            {
+                Console.WriteLine("Invalid param please use help 'h'");
+                return;
+            }
+
+            if (options == EOptions.EOptions_Last) // to be removed
+            {
+                return;
+            }
 
             ushort SongsCnt = 1; //number of the song
-            string songsCntStr; //number of the song in string
             string fileName;  //name of the file
             string filePath; // path to the file
             /* GEt current folder path */
@@ -49,18 +60,10 @@ namespace Mp3NameChanger
                 fileName = Path.GetFileName(s);
                 filePath = Path.GetDirectoryName(s);
                 /*Used when updating nemes with numbers */
-                if (trimName == false && updateName == false)
+                if (options == EOptions.EOptions_Update)
                 {
-                    /* Addes number to file and updates file name */
-                    songsCntStr = string.Format("{0:00}", SongsCnt);
-                    fileName = songsCntStr + " $$" + fileName;
-                }
-                else if (updateName)
-                {
-
                     if (IsFileNameUpdateNeeded(fileName))
                     {
-
                         UpdateFileName(ref fileName, SongsCnt);
                     }
                     else
@@ -130,7 +133,6 @@ namespace Mp3NameChanger
             Console.WriteLine("Possible parameters:");
             Console.WriteLine("u - updates songs names. Ignores songs already renamed.");
             Console.WriteLine("r - trims songs names. Removes prefixs.");
-            Console.WriteLine("No param - updtes all songs names.");
         }
     }
 }
