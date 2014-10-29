@@ -22,6 +22,9 @@ namespace Mp3NameChanger
                     case "u":
                         updateName = true;
                         break;
+                    case "h":
+                        DisplayHelp();
+                        break;
                     default:
                         Console.WriteLine("Invalid param please use help 'h'");
                         break;
@@ -54,22 +57,16 @@ namespace Mp3NameChanger
                 }
                 else if (updateName)
                 {
-                    int magicNbr = 0; //number of characters to trim
-                    while (fileName.IndexOf("$$", magicNbr) != -1)
-                    {
-                        magicNbr++;
-                    }
 
-                    if (magicNbr != 0)
+                    if (IsFileNameUpdateNeeded(fileName))
                     {
-                        SongsCnt++;
-                        continue;
+
+                        UpdateFileName(ref fileName, SongsCnt);
                     }
                     else
                     {
-                        /* Addes number to file and updates file name */
-                        songsCntStr = string.Format("{0:00}", SongsCnt);
-                        fileName = songsCntStr + " $$" + fileName;
+                        SongsCnt++;
+                        continue;
                     }
                 }
                 /* When removing existing indexes */
@@ -98,6 +95,42 @@ namespace Mp3NameChanger
                 SongsCnt++;
 
             }
+        }
+
+        /* Function checks whether file needs to be updated*/
+        static private bool IsFileNameUpdateNeeded(string fileName)
+        {
+            int index = 0;
+            /* Checks if file needs to be updated (does it hace special character?) */
+            while (fileName.IndexOf("$$", index) != -1)
+            {
+                index++;
+            }
+            /* Function has special character so update is not needed */
+            if (index != 0)
+                return false;
+            else /* Function doesnt have special haracter so it needs to be updated */
+                return true;
+                
+        }
+
+        /* Function addes prefix to file given as argument */
+        static private void UpdateFileName(ref string fileName, int counter)
+        {
+            string fileWithNumber;
+            /* Addes number to file and updates file name */
+            fileWithNumber = string.Format("{0:00}", counter);
+            /* Addes special character to file */
+            fileName = fileWithNumber + " $$" + fileName;
+        }
+
+        static private void DisplayHelp()
+        {
+            Console.WriteLine("This is help");
+            Console.WriteLine("Possible parameters:");
+            Console.WriteLine("u - updates songs names. Ignores songs already renamed.");
+            Console.WriteLine("r - trims songs names. Removes prefixs.");
+            Console.WriteLine("No param - updtes all songs names.");
         }
     }
 }
