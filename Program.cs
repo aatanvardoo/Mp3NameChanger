@@ -6,10 +6,15 @@ using System.IO;
 
 namespace Mp3NameChanger
 {
-    
+            
+    class MagicStr
+    {
+        static public string magicStr = "$$";
+    }
     class Program
     {
-        
+        /* Magic string helps findingg already edited songs names. */
+
         enum EOptions { EOptions_Update, EOptions_Trim, EOptions_Last};
         static void Main(string[] args)
         {
@@ -17,6 +22,7 @@ namespace Mp3NameChanger
             Console.WriteLine("================= Mp3 name changer v.1 by Adi =================");
             Console.WriteLine(" ");
             EOptions options = EOptions.EOptions_Last;
+            
             if (args.Length == 1)
             {
                 switch (args[0])
@@ -58,19 +64,18 @@ namespace Mp3NameChanger
                
                 fileName = Path.GetFileName(s);
                 filePath = Path.GetDirectoryName(s);
-                /*Used when updating nemes with numbers */
+                /* Used when updating nemes with numbers */
                 if (options == EOptions.EOptions_Update)
                 {
                     /* Check if file update needed */
-                    if (IsFileNameUpdateNeeded(fileName))
+                    if (FileNameChanger.IsFileNameUpdateNeeded(fileName))
                     {
                         /* Updating file */
-                        UpdateFileName(ref fileName, SongsCnt);
+                        FileNameChanger.UpdateFileName(ref fileName, SongsCnt);
                         Console.WriteLine("Updated ::: {0}", fileName);
                     }
                     else
                     {
-                     
                         /* File doesnt have to be updated check next song.
                          * In ordet to maintain right numbering a congs counter needs to be updated. */
                         Console.WriteLine("Nothing to do ::: {0}", fileName);
@@ -81,55 +86,22 @@ namespace Mp3NameChanger
                 /* When removing existing indexes */
                 else
                 {
-                    int magicNbr = 0; //number of characters to trim
-                    /* Looping till found last magic number $$ */
-                    while (fileName.IndexOf("$$", magicNbr) != -1)
-                    {
-                        magicNbr++;
-                    }
-                    /* Only when find sth */
-                    if (magicNbr > 0)
-                    {
-                        fileName = fileName.Remove(0, magicNbr + 1);
-                        Console.WriteLine("Trimed ::: {0}", fileName);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Nothing to trim ::: {0}", fileName);
-                    }
+                    FileNameChanger.TrimFileName(ref fileName);
 
                 }
 
-                System.IO.File.Move(s, filePath + "\\" + fileName);
+                try
+                {
+
+                    System.IO.File.Move(s, filePath + "\\" + fileName);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("File save failed {0}", e.ToString());
+                }
                 SongsCnt++;
 
             }
-        }
-
-        /* Function checks whether file needs to be updated*/
-        static private bool IsFileNameUpdateNeeded(string fileName)
-        {
-            int index = 0;
-            /* Checks if file needs to be updated (does it hace special character?) */
-            while (fileName.IndexOf("$$", index) != -1)
-            {
-                index++;
-            }
-            /* Function has special character so update is not needed */
-            if (index != 0)
-                return false;
-            else /* Function doesnt have special haracter so it needs to be updated */
-                return true; 
-        }
-
-        /* Function addes prefix to file given as argument */
-        static private void UpdateFileName(ref string fileName, int counter)
-        {
-            string fileWithNumber;
-            /* Addes number to file and updates file name */
-            fileWithNumber = string.Format("{0:00}", counter);
-            /* Addes special character to file */
-            fileName = fileWithNumber + " $$" + fileName;
         }
 
         static private void DisplayHelp()
