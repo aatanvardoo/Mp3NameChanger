@@ -3,61 +3,72 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-
+using NDesk.Options;
 namespace Mp3NameChanger
 {
             
     class MagicStr
-    {
+    { /* Magic string helps findingg already edited songs names. */
         static public string magicStr = "$$";
     }
     class Program
     {
-        /* Magic string helps findingg already edited songs names. */
-
+       
         enum EOptions { EOptions_Update, EOptions_Trim, EOptions_Last};
         static void Main(string[] args)
         {
+            EOptions options = EOptions.EOptions_Last;
+            bool show_help = false;
+            string path = Directory.GetCurrentDirectory();
+
+            var p = new OptionSet() 
+            {
+                { "t|trim", "trims song name", v => options = EOptions.EOptions_Trim}, 
+                { "u|update", "updates song name with numbers 0-99", v => options = EOptions.EOptions_Update },
+			    { "m|magic=", "magic {STRING}. String that will separate" +
+                "number and original song name i.e 01 $$NobodyMusic.mp3", v => MagicStr.magicStr = v  },
+                { "d|dir=",   "songs {path} i.e. C:\\Mp3 default = current directory", v => path = v  },
+			    { "h|help",  "shows help", v => show_help = v != null },
+            };
+
+            List<string> extra;
+            try
+            {
+                extra = p.Parse(args);
+            }
+            catch (OptionException e)
+            {
+                Console.Write("Some problem: ");
+                Console.WriteLine(e.Message);
+                Console.WriteLine("Try `--help' for more information.");
+                return;
+            }
+
+            if (show_help)
+            {
+                ShowHelp(p);
+                return;
+            }
+  
             Console.WriteLine(" ");
             Console.WriteLine("================= Mp3 name changer v.1 by Adi =================");
             Console.WriteLine(" ");
-            EOptions options = EOptions.EOptions_Last;
-            
-            if (args.Length == 1)
-            {
-                switch (args[0])
-                {
-                    case "r":
-                        options = EOptions.EOptions_Trim;
-                        break;
-                    case "u":
-                        options = EOptions.EOptions_Update;
-                        break;
-                    case "h":
-                        DisplayHelp();
-                        break;
-                    default:
-                        Console.WriteLine("Invalid param please use help 'h'");
-                        options = EOptions.EOptions_Last;
-                        return;
-                }
-            }
-            else
-            {
-                Console.WriteLine("Invalid param please use help 'h'");
-                return;
-            }
 
             ushort SongsCnt = 1; //number of the song
             string fileName;  //name of the file
             string filePath; // path to the file
-            /* GEt current folder path */
-            string path = Directory.GetCurrentDirectory();
-
+            string[] filePaths = null;
             
             /* Find all the files in path  with mp3 extension */
-            string[] filePaths = Directory.GetFiles(@path, "*.mp3");
-
+            try
+            {
+                filePaths = Directory.GetFiles(@path, "*.mp3");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Get filesfailed {0}", e.ToString());
+                return;
+            }
             /* Modify all found files names */
             foreach (string s in filePaths)
             {
@@ -87,8 +98,8 @@ namespace Mp3NameChanger
                 else
                 {
                     FileNameChanger.TrimFileName(ref fileName);
-
                 }
+
 
                 try
                 {
@@ -97,11 +108,20 @@ namespace Mp3NameChanger
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("File save failed {0}", e.ToString());
+                    Console.WriteLine("File saveing failed {0}", e.ToString());
                 }
                 SongsCnt++;
 
             }
+        }
+        static void ShowHelp(OptionSet p)
+        {
+            Console.WriteLine("Usage: greet [OPTIONS]+ message");
+            Console.WriteLine("Greet a list of individuals with an optional message.");
+            Console.WriteLine("If no message is specified, a generic greeting is used.");
+            Console.WriteLine();
+            Console.WriteLine("Options:");
+            p.WriteOptionDescriptions(Console.Out);
         }
 
         static private void DisplayHelp()
