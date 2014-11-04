@@ -24,7 +24,7 @@ namespace Mp3NameChanger
             var p = new OptionSet() 
             {
                 { "t|trim", "trims song name", v => options = EOptions.EOptions_Trim}, 
-                { "u|update", "updates song name with numbers 0-99", v => options = EOptions.EOptions_Update },
+                { "u|update", "updates song name with numbers", v => options = EOptions.EOptions_Update },
 			    { "m|magic=", "magic {STRING}. String that will separate" +
                 "number and original song name i.e 01 $$NobodyMusic.mp3", v => MagicStr.magicStr = v  },
                 { "d|dir=",   "songs {path} i.e. C:\\Mp3 default = current directory", v => path = v  },
